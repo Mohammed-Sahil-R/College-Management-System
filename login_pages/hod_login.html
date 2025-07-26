@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>HOD Login</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>HOD Login</h2>
+    <select id="hodDeptDropdown">
+      <option value="">Select Department</option>
+    </select>
+    <input type="email" id="hodEmail" placeholder="Email">
+    <input type="password" id="hodPassword" placeholder="Password">
+    <button onclick="loginHOD()">Login</button>
+    <button onclick="window.location.href='../index.html'">Back</button>
+  </div>
+  <script src="../static/script.js"></script>
+  <script>
+    window.onload = () => {
+      const check = setInterval(() => {
+        if (typeof db !== 'undefined') {
+          loadDepartmentsDropdown();
+          clearInterval(check);
+        }
+      }, 100);
+    };
+  </script>
+</body>
+</html>

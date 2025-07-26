@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Login</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Teacher Login</h2>
+    <select id="teacherDepartment"></select>
+    <input type="email" id="teacherEmail" placeholder="Email">
+    <input type="password" id="teacherPassword" placeholder="Password">
+    <button onclick="loginTeacher()">Login</button>
+    <button onclick="window.location.href='../index.html'">Back</button>
+  </div>
+  <script src="../static/script.js"></script>
+  <script>
+    window.onload = () => {
+      const wait = setInterval(() => {
+        if (typeof db !== 'undefined') {
+          loadDepartmentsDropdown();
+          clearInterval(wait);
+        }
+      }, 100);
+    };
+  </script>
+</body>
+</html>

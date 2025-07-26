@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🎓 Student Dashboard</h2>
+
+    <!-- 📥 Download Notes with Dropdowns -->
+    <h3>📥 Download Notes</h3>
+
+    <label>Subject Code:</label>
+    <select id="dropdownSubjectCode" onchange="loadModuleDropdown()">
+      <option value="">Select Subject Code</option>
+    </select>
+
+    <label>Module Number:</label>
+    <select id="dropdownModuleNumber">
+      <option value="">Select Module Number</option>
+    </select>
+
+    <br><br>
+    <button onclick="downloadSelectedNote()">Download Note</button>
+    <p id="noteDownloadLink"></p>
+
+    <hr>
+
+    <!-- 📊 View Results -->
+    <h3>📊 View Results</h3>
+    <input type="text" id="resultSearchUSN" placeholder="Enter Your USN">
+
+    <select id="resultSearchTestType">
+      <option value="">All Tests</option>
+      <option value="IA 1">IA 1</option>
+      <option value="IA 2">IA 2</option>
+      <option value="SEE">SEE</option>
+    </select>
+
+    <button onclick="searchResultByUSN()">Search Results</button>
+
+    <table id="studentResultTable">
+      <thead>
+        <tr><th>Subject</th><th>Code</th><th>Marks</th><th>Test Type</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <hr>
+    <button onclick="window.location.href='../index.html'">Logout</button>
+  </div>
+
+  <script>
+    let db;
+    const request = indexedDB.open('StudentPortalDB', 1);
+
+    request.onsuccess = (e) => {
+      db = e.target.result;
+      loadSubjectDropdown();
+    };
+
+    request.onerror = () => alert('❌ Failed to open database');
+
+    function loadSubjectDropdown() {
+      const tx = db.transaction('notes', 'readonly');
+      tx.objectStore('notes').getAll().onsuccess = (e) => {
+        const notes = e.target.result;
+        const dropdown = document.getElementById('dropdownSubjectCode');
+        dropdown.innerHTML = '<option value="">Select Subject Code</option>';
+
+        const uniqueCodes = [...new Set(notes.map(n => n.code))];
+        uniqueCodes.forEach(code => {
+          dropdown.innerHTML += `<option value="${code}">${code}</option>`;
+        });
+      };
+    }
+
+    function loadModuleDropdown() {
+      const subjectCode = document.getElementById('dropdownSubjectCode').value;
+      const tx = db.transaction('notes', 'readonly');
+      tx.objectStore('notes').getAll().onsuccess = (e) => {
+        const notes = e.target.result;
+        const filtered = notes.filter(n => n.code === subjectCode);
+        const dropdown = document.getElementById('dropdownModuleNumber');
+        dropdown.innerHTML = '<option value="">Select Module Number</option>';
+
+        const uniqueMods = [...new Set(filtered.map(n => n.modNo))];
+        uniqueMods.forEach(mod => {
+          dropdown.innerHTML += `<option value="${mod}">${mod}</option>`;
+        });
+      };
+    }
+
+    function downloadSelectedNote() {
+      const code = document.getElementById('dropdownSubjectCode').value;
+      const modNo = document.getElementById('dropdownModuleNumber').value;
+      const tx = db.transaction('notes', 'readonly');
+      tx.objectStore('notes').getAll().onsuccess = (e) => {
+        const note = e.target.result.find(n => n.code === code && n.modNo === modNo);
+        if (!note) {
+          document.getElementById('noteDownloadLink').innerHTML = '❌ Note not found';
+          return;
+        }
+        const url = note.file;
+        document.getElementById('noteDownloadLink').innerHTML = `
+          ✅ <a href="${url}" download="${note.code}_Module${note.modNo}.pdf">Download Note</a>
+        `;
+      };
+    }
+
+    function searchResultByUSN() {
+      const usn = document.getElementById('resultSearchUSN').value.trim();
+      const selectedType = document.getElementById('resultSearchTestType').value;
+      const tx = db.transaction('results', 'readonly');
+      tx.objectStore('results').getAll().onsuccess = (e) => {
+        let data = e.target.result.filter(r => r.usn === usn);
+        if (selectedType) data = data.filter(r => r.type === selectedType);
+        const tbody = document.querySelector('#studentResultTable tbody');
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4">❌ No results found</td></tr>';
+        } else {
+          data.forEach(r => {
+            tbody.innerHTML += `<tr><td>${r.subject}</td><td>${r.code}</td><td>${r.marks}</td><td>${r.type}</td></tr>`;
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

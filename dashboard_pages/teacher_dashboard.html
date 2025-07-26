@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Dashboard</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>👩‍🏫 Teacher Dashboard</h2>
+
+    <!-- Upload Notes -->
+    <h3>Upload Notes</h3>
+    <select id="noteSem">
+      <option disabled selected>Semester</option>
+      <option>Sem 1</option><option>Sem 2</option>
+      <option>Sem 3</option><option>Sem 4</option>
+      <option>Sem 5</option><option>Sem 6</option>
+      <option>Sem 7</option><option>Sem 8</option>
+    </select>
+    <input type="text" id="noteSubjectName" placeholder="Subject Name">
+    <input type="text" id="noteSubjectCode" placeholder="Subject Code">
+    <input type="text" id="noteModuleNo" placeholder="Module Number">
+    <input type="text" id="noteModuleName" placeholder="Module Name">
+    <input type="file" id="noteFile">
+    <button onclick="uploadNote()">Upload Note</button>
+
+    <!-- Manage Notes -->
+    <h4>Manage Notes</h4>
+    <table id="noteTable">
+      <thead>
+        <tr><th>Sem</th><th>Sub Code</th><th>Module</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <hr>
+
+    <!-- Upload Result -->
+    <h3>Upload Result</h3>
+    <select id="resSem">
+      <option>Sem 1</option><option>Sem 2</option>
+      <option>Sem 3</option><option>Sem 4</option>
+      <option>Sem 5</option><option>Sem 6</option>
+      <option>Sem 7</option><option>Sem 8</option>
+    </select>
+    <select id="resScheme"><option value="">Select Scheme</option></select>
+    <select id="resUSN"><option value="">Select USN</option></select>
+    <input type="text" id="resStudentName" placeholder="Student Name" readonly>
+    <input type="text" id="resSubName" placeholder="Subject Name">
+    <input type="text" id="resSubCode" placeholder="Subject Code">
+    <input type="number" id="resMarks" placeholder="Marks">
+    <select id="resTestType">
+      <option>IA 1</option>
+      <option>IA 2</option>
+      <option>Lab Internal</option>
+      <option>SEE</option>
+    </select>
+    <button onclick="uploadResult()">Upload Result</button>
+
+    <!-- Manage Results -->
+    <h4>Manage Results</h4>
+    <table id="resultTable">
+      <thead>
+        <tr><th>USN</th><th>Sub</th><th>Marks</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <br>
+    <button onclick="window.location.href='../index.html'">Logout</button>
+  </div>
+
+  <script>
+    let db;
+    const request = indexedDB.open('StudentPortalDB', 1);
+
+    request.onsuccess = (e) => {
+      db = e.target.result;
+      initPage();
+    };
+
+    function initPage() {
+      loadSchemes();
+      loadStudentDropdown();
+      loadResultTable();
+      loadNoteTable();
+    }
+
+    function loadStudentDropdown() {
+      const tx = db.transaction('students', 'readonly');
+      const store = tx.objectStore('students');
+      store.getAll().onsuccess = (e) => {
+        const data = e.target.result;
+        const dropdown = document.getElementById('resUSN');
+        dropdown.innerHTML = `<option value="">Select USN</option>`;
+        data.forEach(stu => {
+          dropdown.innerHTML += `<option value="${stu.usn}">${stu.usn}</option>`;
+        });
+        dropdown.onchange = () => {
+          const usn = dropdown.value;
+          const selected = data.find(s => s.usn === usn);
+          document.getElementById('resStudentName').value = selected ? selected.name : '';
+        };
+      };
+    }
+
+    function loadSchemes() {
+      const tx = db.transaction('schemes', 'readonly');
+      tx.objectStore('schemes').getAll().onsuccess = (e) => {
+        const data = e.target.result;
+        const dropdown = document.getElementById('resScheme');
+        dropdown.innerHTML = '<option value="">Select Scheme</option>';
+        data.forEach(s => {
+          dropdown.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+        });
+      };
+    }
+
+    function uploadNote() {
+      const sem = document.getElementById('noteSem').value;
+      const subject = document.getElementById('noteSubjectName').value;
+      const code = document.getElementById('noteSubjectCode').value;
+      const modNo = document.getElementById('noteModuleNo').value;
+      const modName = document.getElementById('noteModuleName').value;
+      const file = document.getElementById('noteFile').files[0];
+      if (!file) return alert('Upload file required');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileData = reader.result;
+        const tx = db.transaction('notes', 'readwrite');
+        tx.objectStore('notes').add({ sem, subject, code, modNo, modName, file: fileData });
+        tx.oncomplete = () => {
+          alert('✅ Note uploaded');
+          loadNoteTable();
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadNoteTable() {
+      const tx = db.transaction('notes', 'readonly');
+      tx.objectStore('notes').getAll().onsuccess = (e) => {
+        const notes = e.target.result;
+        const tbody = document.querySelector('#noteTable tbody');
+        tbody.innerHTML = '';
+
+        if (notes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4">❌ No notes found</td></tr>';
+        } else {
+          notes.forEach((note, index) => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${note.sem}</td>
+                <td>${note.code}</td>
+                <td>${note.modNo} - ${note.modName}</td>
+                <td><button onclick="deleteNote(${index})">Delete</button></td>
+              </tr>`;
+          });
+        }
+      };
+    }
+
+    function deleteNote(index) {
+      const tx = db.transaction('notes', 'readonly');
+      tx.objectStore('notes').getAll().onsuccess = (e) => {
+        const notes = e.target.result;
+        const note = notes[index];
+        if (!note) return;
+
+        const delTx = db.transaction('notes', 'readwrite');
+        const store = delTx.objectStore('notes');
+        store.openCursor().onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            const val = cursor.value;
+            if (
+              val.sem === note.sem &&
+              val.code === note.code &&
+              val.modNo === note.modNo &&
+              val.modName === note.modName
+            ) {
+              cursor.delete();
+              loadNoteTable();
+            } else {
+              cursor.continue();
+            }
+          }
+        };
+      };
+    }
+
+    function uploadResult() {
+      const usn = document.getElementById('resUSN').value;
+      const subject = document.getElementById('resSubName').value;
+      const code = document.getElementById('resSubCode').value;
+      const marks = document.getElementById('resMarks').value;
+      const type = document.getElementById('resTestType').value;
+      const sem = document.getElementById('resSem').value;
+      const scheme = document.getElementById('resScheme').value;
+      if (!usn || !subject || !marks || !type) return alert('Fill all result fields');
+      const tx = db.transaction('results', 'readwrite');
+      tx.objectStore('results').add({ usn, subject, code, marks, type, sem, scheme });
+      tx.oncomplete = () => {
+        alert('✅ Result uploaded');
+        loadResultTable();
+
+        document.getElementById('resUSN').value = '';
+        document.getElementById('resStudentName').value = '';
+        document.getElementById('resSubName').value = '';
+        document.getElementById('resSubCode').value = '';
+        document.getElementById('resMarks').value = '';
+        document.getElementById('resTestType').selectedIndex = 0;
+        document.getElementById('resSem').selectedIndex = 0;
+        document.getElementById('resScheme').selectedIndex = 0;
+      };
+    }
+
+    function loadResultTable() {
+      const tx = db.transaction('results', 'readonly');
+      tx.objectStore('results').getAll().onsuccess = (e) => {
+        const tbody = document.querySelector('#resultTable tbody');
+        tbody.innerHTML = '';
+        e.target.result.forEach(r => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${r.usn}</td>
+              <td>${r.subject}</td>
+              <td>${r.marks}</td>
+              <td><button onclick="deleteResult(${r.id})">Delete</button></td>
+            </tr>`;
+        });
+      };
+    }
+
+    function deleteResult(id) {
+      const tx = db.transaction('results', 'readwrite');
+      tx.objectStore('results').delete(id);
+      tx.oncomplete = () => loadResultTable();
+    }
+  </script>
+</body>
+</html>

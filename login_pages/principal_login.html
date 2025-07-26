@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Principal Login</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <div id="principalLoginSection">
+      <h2>Principal Login</h2>
+      <input id="principalEmail" placeholder="Email" type="email" required>
+      <input id="principalPassword" placeholder="Password" type="password" required>
+      <button onclick="loginPrincipal()">Login</button>
+      <button onclick="showReset()">Forgot Password?</button>
+      <button onclick="window.location.href='../index.html'">Back</button>
+    </div>
+    <div id="resetSection" style="display:none">
+      <h2>Reset Password</h2>
+      <input id="resetEmail" placeholder="Email" type="email">
+      <input id="newPassword" placeholder="New Password" type="password">
+      <input id="secretPin" placeholder="4-digit PIN" maxlength="4" type="password">
+      <button onclick="resetPrincipalPassword()">Reset Password</button>
+      <button onclick="hideReset()">Back to Login</button>
+    </div>
+  </div>
+  <script src="../static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>HOD Dashboard</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>👨‍💼 HOD Dashboard</h2>
+    <h1> TEACHER MANAGEMENT </h1>
+    <!-- Add Teacher Section -->
+    <h3>Add Teacher</h3>
+    <input type="text" id="teacherName" placeholder="Teacher Name">
+    <input type="email" id="teacherEmail" placeholder="Email">
+    <input type="password" id="teacherPassword" placeholder="Password">
+    <select id="teacherDept">
+      <option value="">Select Department</option>
+    </select>
+    <button onclick="addTeacher()">Add Teacher</button>
+
+    <!-- Manage Teachers -->
+    <h4>Manage Teachers</h4>
+    <table id="teacherTable">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Department</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <hr>
+    <h1> STUDENT MANAGEMENT </h1>
+    <!-- Add Scheme Section -->
+    <h3>Add Scheme</h3>
+     <input type="text" id="newScheme" placeholder="Enter Scheme (e.g., 2021)">
+     <button onclick="addScheme()">Add Scheme</button>
+
+      <h4>Available Schemes</h4>
+      <ul id="schemeList"></ul>
+      
+
+
+    <hr>
+
+    <!-- Add Student Section -->
+    <h3>Add Student</h3>
+    <input type="text" id="studentName" placeholder="Student Name">
+    <input type="text" id="studentUSN" placeholder="USN">
+    <select id="studentSem">
+      <option value="">Select Semester</option>
+      <option>Sem 1</option><option>Sem 2</option>
+      <option>Sem 3</option><option>Sem 4</option>
+      <option>Sem 5</option><option>Sem 6</option>
+      <option>Sem 7</option><option>Sem 8</option>
+    </select>
+    <select id="studentScheme">
+      <option value="">Select Scheme</option>
+    </select>
+    <input type="date" id="studentDOB">
+    <input type="tel" id="studentMobile" placeholder="Mobile Number">
+    <input type="email" id="studentEmail" placeholder="Email">
+    <button onclick="addStudent()">Add Student</button>
+
+    <!-- Manage Students -->
+    <h4>Manage Students</h4>
+    <table id="studentTable">
+      <thead>
+        <tr><th>Name</th><th>USN</th><th>Sem</th><th>Scheme</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br><button onclick="window.location.href='../index.html'">Logout</button>
+  </div>
+  
+  <script src="../static/script.js"></script>
+  <script>
+    const waitForDBReady = setInterval(() => {
+      if (typeof db !== 'undefined' && db !== null) {
+        clearInterval(waitForDBReady);
+        loadDepartmentsDropdown();
+        loadSchemes();
+        loadTeacherTable();
+        loadStudentTable();
+      }
+    }, 100);
+  </script>
+</body>
+</html>

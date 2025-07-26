@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Principal Dashboard</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>👨‍🏫 Principal Dashboard</h2>
+
+    <h3>Add Department</h3>
+    <input type="text" id="newDeptName" placeholder="e.g., CSE, ECE">
+    <button onclick="addDepartment()">Add Department</button>
+
+    <h3>Add HOD</h3>
+    <input type="email" id="hodEmail" placeholder="Email">
+    <input type="password" id="hodPassword" placeholder="Password">
+    <select id="hodDeptDropdown">
+      <option value="">Select Department</option>
+    </select>
+    <button onclick="addHOD()">Add HOD</button>
+
+    <h4>Manage HODs</h4>
+    <table id="hodTable">
+      <thead><tr><th>Email</th><th>Department</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <br><button onclick="window.location.href='../index.html'">Logout</button>
+  </div>
+
+  <script src="../static/script.js"></script>  
+  <script>
+    window.onload = () => {
+      const check = setInterval(() => {
+        if (typeof db !== 'undefined') {
+          loadDepartmentsDropdown();  
+          loadHODTable();             
+          clearInterval(check);
+        }
+      }, 100);
+    };
+</script> 
+</body>
+</html>
