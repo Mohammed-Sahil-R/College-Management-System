@@ -82,7 +82,7 @@ A modern, role-based College Management System built using **HTML**, **CSS**, **
 
 ## 📷 Screenshots
 
-> <img width="1280" height="565" alt="image" src="https://github.com/user-attachments/assets/c1d26e89-3af4-4efc-83ad-96a076a72598" />
+><img width="1280" height="584" alt="image" src="https://github.com/user-attachments/assets/79f188b9-48b3-438b-9bea-48e6e42d5a73" />
 <img width="1346" height="626" alt="image" src="https://github.com/user-attachments/assets/b3de9c79-4db3-4e3b-aaeb-abb7df6d3670" />
 <img width="1341" height="613" alt="image" src="https://github.com/user-attachments/assets/6e08d267-1d12-469c-bb4d-ddd18df74ba2" />
 <img width="1329" height="613" alt="image" src="https://github.com/user-attachments/assets/c2f27568-ded8-4da8-99f6-e3a2359c01f0" />
